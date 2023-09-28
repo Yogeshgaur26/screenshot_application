@@ -1,1 +1,30 @@
+import tkinter as tk
+import time
+from PIL import ImageGrab
+
+def take_screenshot():
+    # Get the current timestamp to create a unique filename
+    timestamp = time.strftime("%Y-%m-%d_%H-%M-%S")
+    
+    # Capture the screen and save it as a file
+    screenshot = ImageGrab.grab()
+    screenshot.save(f"screenshot_{timestamp}.png")
+    
+    # Update the status label
+    status_label.config(text=f"Screenshot saved as screenshot_{timestamp}.png")
+
+# Create the main application window
+app = tk.Tk()
+app.title("Screenshot Application")
+
+# Create a button to take a screenshot
+screenshot_button = tk.Button(app, text="Take Screenshot", command=take_screenshot)
+screenshot_button.pack(pady=20)
+
+# Create a label to display the status
+status_label = tk.Label(app, text="")
+status_label.pack()
+
+# Start the main application loop
+app.mainloop()
 
