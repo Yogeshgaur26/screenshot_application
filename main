@@ -4,7 +4,7 @@ from PIL import ImageGrab
 import threading
 
 class ScreenshotApp:
-    def _init_(self, root):
+    def __init__(self, root):
         self.root = root
         self.root.title("Screenshot Application")
 
@@ -30,7 +30,13 @@ class ScreenshotApp:
 
     def start_capture(self):
         if not self.running:
-            self.interval_seconds = int(self.interval_entry.get()) if self.interval_entry.get() else 10
+            interval_text = self.interval_entry.get()
+            if interval_text.isdigit():
+                self.interval_seconds = int(interval_text)
+            else:
+                self.status_label.config(text="Please enter a valid interval (seconds)")
+                return
+
             self.running = True
             self.start_button.config(state=tk.DISABLED)
             self.stop_button.config(state=tk.NORMAL)
@@ -51,7 +57,7 @@ class ScreenshotApp:
             self.status_label.config(text=f"Screenshot {self.screenshot_count} saved as screenshot_{timestamp}.png")
             self.root.after(1000 * self.interval_seconds, self.capture_screenshot)
 
-if _name_ == "__main__":
+if __name__ == "__main__":
     root = tk.Tk()
     app = ScreenshotApp(root)
     root.mainloop()
