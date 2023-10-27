@@ -15,13 +15,20 @@ class ScreenshotApp:
         self.thread = None
 
         # Create widgets
+        self.create_widgets()
+        self.layout_widgets()
+
+    def create_widgets(self):
         self.start_button = tk.Button(root, text="Start Taking Screenshots", command=self.start_capture)
         self.stop_button = tk.Button(root, text="Stop", command=self.stop_capture, state=tk.DISABLED)
         self.interval_label = tk.Label(root, text="Interval (seconds):")
         self.interval_entry = tk.Entry(root)
         self.status_label = tk.Label(root, text="")
 
-        # Layout widgets
+    def layout_widgets(self):
+        title_label = tk.Label(root, text="Screenshot Application", font=("Helvetica", 20))
+        title_label.pack(pady=10)
+
         self.start_button.pack(pady=10)
         self.stop_button.pack(pady=10)
         self.interval_label.pack()
@@ -33,29 +40,31 @@ class ScreenshotApp:
             interval_text = self.interval_entry.get()
             if interval_text.isdigit():
                 self.interval_seconds = int(interval_text)
+                self.status_label.config(text="Capturing screenshots...")
+                self.running = True
+                self.start_button.config(state=tk.DISABLED)
+                self.stop_button.config(state=tk.NORMAL)
+                self.thread = threading.Thread(target=self.capture_screenshot_thread)
+                self.thread.start()
             else:
                 self.status_label.config(text="Please enter a valid interval (seconds)")
-                return
-
-            self.running = True
-            self.start_button.config(state=tk.DISABLED)
-            self.stop_button.config(state=tk.NORMAL)
-            self.capture_screenshot()
 
     def stop_capture(self):
         if self.running:
             self.running = False
+            self.thread.join()
+            self.status_label.config(text="Screenshot capture stopped.")
             self.start_button.config(state=tk.NORMAL)
             self.stop_button.config(state=tk.DISABLED)
 
-    def capture_screenshot(self):
-        if self.running:
+    def capture_screenshot_thread(self):
+        while self.running:
             timestamp = time.strftime("%Y-%m-%d_%H-%M-%S")
             screenshot = ImageGrab.grab()
             screenshot.save(f"screenshot_{timestamp}.png")
             self.screenshot_count += 1
             self.status_label.config(text=f"Screenshot {self.screenshot_count} saved as screenshot_{timestamp}.png")
-            self.root.after(1000 * self.interval_seconds, self.capture_screenshot)
+            time.sleep(self.interval_seconds)
 
 if __name__ == "__main__":
     root = tk.Tk()
